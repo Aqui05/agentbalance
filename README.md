@@ -5,33 +5,6 @@ charge de travail entre eux **sans chef d'orchestre central** : chaque
 agent négocie uniquement avec ses voisins directs, et le système converge
 vers un équilibre global à partir de décisions purement locales.
 
-Projet réalisé en lien avec les enseignements du **Master 1 Computer and
-Network Systems** (spécialité systèmes autonomiques) : systèmes distribués,
-algorithmique d'optimisation décentralisée, tolérance à la charge et aux
-pannes.
-
-## Pourquoi la diffusion load balancing (et pas les enchères)
-
-Deux familles d'algorithmes étaient envisageables : la **diffusion**
-(chaque agent compare sa charge à ses voisins directs et leur transfère
-l'excédent) ou des **enchères locales** (chaque tâche est "vendue" au
-voisin le moins chargé). La diffusion a été retenue pour ce prototype :
-
-- elle est **prouvée mathématiquement convergente** vers l'équilibre sur
-  un graphe connexe (Cybenko, 1989) — un critère de correction, pas
-  seulement d'implémentation ;
-- elle ne nécessite **aucun mécanisme de négociation/enchère** entre
-  agents, ce qui réduit la surface de complexité pour une V1 tout en
-  restant pleinement représentative d'un système autonomique décentralisé ;
-- elle passe à l'échelle sans coordination supplémentaire : ajouter des
-  agents n'augmente pas la complexité de la négociation (contrairement aux
-  enchères, où chaque tâche doit être "mise en vente" auprès de plusieurs
-  voisins).
-
-Les enchères locales restent une extension naturelle si le projet est
-approfondi (elles gèrent mieux l'hétérogénéité des tâches, la diffusion
-suppose une charge divisible).
-
 ## Architecture
 
 ```
@@ -158,39 +131,3 @@ pip install -r requirements-dev.txt
 pytest tests/ -v
 ```
 
-Vérifie les propriétés attendues de l'algorithme : réduction (ou maintien)
-de l'écart-type à chaque round, convergence en un nombre de rounds borné,
-charge jamais négative, conservation de la charge totale (la diffusion
-redistribue, elle ne crée ni ne détruit de charge), plus les endpoints de
-l'API (backend).
-
-> ⚠️ Comme pour le projet zemidjan-routing, je n'ai pas pu ouvrir
-> l'interface dans un vrai navigateur ni lancer `docker compose up`
-> moi-même (pas de navigateur, même headless, ni de démon Docker dans cet
-> environnement). Ce qui a été vérifié sans ces outils : le build Vue
-> (`npm run build`) passe sans erreur, l'API FastAPI répond correctement
-> aux vraies requêtes (9 tests automatisés), et le proxy `/api` entre le
-> frontend et le backend fonctionne (vérifié en local, hors Docker, avec
-> `curl`). Le rendu visuel réel et le `docker compose up` de bout en bout
-> sont à confirmer chez toi — n'hésite pas à me dire ce qui ne va pas.
-
-## Paragraphe réutilisable (lettre de motivation)
-
-> Pour approfondir ma compréhension des systèmes autonomiques, j'ai
-> implémenté et évalué un algorithme de répartition de charge décentralisée
-> (diffusion load balancing) entre agents négociant uniquement avec leurs
-> voisins directs, sans coordination centrale. Les résultats obtenus
-> montrent une réduction de 71 % du déséquilibre de charge par rapport à
-> une architecture non coordonnée, ainsi qu'une capacité du système à
-> absorber une panne de noeud en un round de négociation seulement — une
-> illustration concrète des principes d'adaptabilité et de tolérance aux
-> pannes au coeur du programme CNS.
-
-## Prochaines étapes
-
-- Version avec enchères locales (comparaison directe avec la diffusion)
-- Vrais processus communicant via sockets/gRPC plutôt qu'une simulation en
-  mémoire (rapprocherait le prototype d'un déploiement réel)
-- Vérifier/peaufiner le rendu de l'interface dans un vrai navigateur (non
-  testé visuellement, voir avertissement plus haut)
-- CI GitHub Actions exécutant les tests à chaque push
